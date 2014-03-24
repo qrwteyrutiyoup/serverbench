@@ -21,12 +21,6 @@ function die() {
     exit
 }
 
-function check_root() {
-    if [ $(id -u) -ne 0 ]; then
-        die "You should run this script as root, as it may need to install a few packages for the benchmarks to run."
-    fi
-}
-
 function welcome_banner() {
     clear
     echo
@@ -117,8 +111,14 @@ function check_required_packages() {
     done
 
     if [ -n "${missing_packages}" ]; then
-        ${PKG_UPDATE} || die "Problem trying to update packages database."
-        ${PKG_INSTALL} ${missing_packages} || die "Problem during the packages install; please install the missing packages with '"${PKG_INSTALL}${missing_packages}"'."
+        if [ $(id -u) -eq 0 ]; then
+            echo "The following packages are missing, but we are going to try to install them:"${missing_packages}
+            sleep 1
+            ${PKG_UPDATE} || die "Problem trying to update packages database."
+            ${PKG_INSTALL} ${missing_packages} || die "Problem during the packages install; please install the missing packages with '"${PKG_INSTALL}${missing_packages}"'."
+        else
+            die "The following packages are missing:"${missing_packages}". You can try to install them with '"${PKG_INSTALL}${missing_packages}"'."
+        fi
     fi
 }
 
@@ -343,7 +343,6 @@ function show_summary() {
     echo "--- 8< --- [cut here] --- 8< ---"
 }
 
-check_root
 welcome_banner
 
 # Let it begin...
