@@ -215,6 +215,7 @@ function server_specs() {
     echo "Getting CPU information..."
     cname=$(awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo)
     sleep 1
+    cmhz=$(awk -F: '/cpu MHz/ {name=$2} END {print name}' /proc/cpuinfo)
     echo "Getting CPU Cores information..."
     cores=$(awk -F: '/model name/ {core++} END {print core}' /proc/cpuinfo)
     sleep 1
@@ -287,6 +288,7 @@ function show_summary() {
 
     echo "****** SERVER SPECS"
     echo "CPU model: "${cname}
+    echo "CPU clock: "${cmhz}" MHz"
     echo "CPU cores: "${cores}
     echo "RAM: "$(readable_mem ${tram})
     echo "SWAP: "$(readable_mem ${swap})
